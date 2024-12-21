@@ -1,43 +1,54 @@
 ﻿using BookingSystem.Domain.Entities;
 using BookingSystem.Infrastructure.Data;
+using BookingSystem.Web.ViewModels;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 
 namespace BookingSystem.Web.Controllers
 {
-    public class VillaController : Controller
+    public class VillaNumberController : Controller
     {
         private readonly ApplicationDbContext _db;
 
-        public VillaController(ApplicationDbContext db)
+        public VillaNumberController(ApplicationDbContext db)
         {
             _db = db;
         }
 
         public IActionResult Index()
         {
-            var villas = _db.Villas.ToList();
-            return View(villas);
+            var villaNumbers = _db.VillaNumbers.ToList();
+            return View(villaNumbers);
         }
 
         public IActionResult Create()
         {
+            var villas = _db.Villas.ToList().Select(p => new SelectListItem
+            {
+                Text = p.Name,
+                Value = p.Id.ToString()
+            });
+
+            ViewBag.VillaList = villas;
+
             return View();
         }
 
 
+
         [HttpPost]
-        public IActionResult Create(Villa villa)
+        public IActionResult Create(VillaNumber villaNumber)
         {
+            ModelState.Remove("Villa");
             if (!ModelState.IsValid)
             {
-                TempData["error"] = "The villa could not be created";
-                return View(villa);
+                TempData["error"] = "The villa number could not be created";
+                return View(villaNumber);
             }
 
-            _db.Villas.Add(villa);
+            _db.VillaNumbers.Add(villaNumber);
             _db.SaveChanges();
-            TempData["success"] = "The villa has been created successfully";
+            TempData["success"] = "The villa number has been created successfully";
             return RedirectToAction("Index");
 
         }
