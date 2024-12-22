@@ -3,6 +3,7 @@ using BookingSystem.Infrastructure.Data;
 using BookingSystem.Web.ViewModels;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
+using Microsoft.EntityFrameworkCore;
 
 namespace BookingSystem.Web.Controllers
 {
@@ -17,21 +18,22 @@ namespace BookingSystem.Web.Controllers
 
         public IActionResult Index()
         {
-            var villaNumbers = _db.VillaNumbers.ToList();
+            var villaNumbers = _db.VillaNumbers.Include(p=>p.Villa).ToList();
             return View(villaNumbers);
         }
 
         public IActionResult Create()
         {
-            var villas = _db.Villas.ToList().Select(p => new SelectListItem
+            var villaNumberVM = new VillaNumberVM
             {
-                Text = p.Name,
-                Value = p.Id.ToString()
-            });
-
-            ViewBag.VillaList = villas;
-
-            return View();
+                VillaList = _db.Villas.ToList().Select(p => new SelectListItem
+                {
+                    Text = p.Name,
+                    Value = p.Id.ToString()
+                })
+            };
+                
+            return View(villaNumberVM);
         }
 
 
