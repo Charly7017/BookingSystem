@@ -1,4 +1,5 @@
-﻿using BookingSystem.Domain.Entities;
+﻿using BookingSystem.Application.Common.Interfaces;
+using BookingSystem.Domain.Entities;
 using BookingSystem.Infrastructure.Data;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
@@ -7,16 +8,16 @@ namespace BookingSystem.Web.Controllers
 {
     public class VillaController : Controller
     {
-        private readonly ApplicationDbContext _db;
+        private readonly IVillaRepository _villaRepo;
 
-        public VillaController(ApplicationDbContext db)
+        public VillaController(IVillaRepository villaRepo)
         {
-            _db = db;
+            _villaRepo = villaRepo;
         }
 
         public IActionResult Index()
         {
-            var villas = _db.Villas.ToList();
+            var villas = _villaRepo.GetAll();
             return View(villas);
         }
 
@@ -35,16 +36,16 @@ namespace BookingSystem.Web.Controllers
                 return View(villa);
             }
 
-            _db.Villas.Add(villa);
-            _db.SaveChanges();
+            _villaRepo.Add(villa);
+            _villaRepo.Save();
             TempData["success"] = "The villa has been created successfully";
-            return RedirectToAction("Index");
+            return RedirectToAction(nameof(Index));
 
         }
 
         public IActionResult Update(int villaId)
         {
-            var obj = _db.Villas.FirstOrDefault(p=>p.Id == villaId);
+            var obj = _villaRepo.Get(p=>p.Id==villaId);
 
             if (obj is null)
             {
@@ -64,16 +65,16 @@ namespace BookingSystem.Web.Controllers
                 return View(villa);
             }
 
-            _db.Villas.Update (villa);
-            _db.SaveChanges();
+            _villaRepo.Update(villa);
+            _villaRepo.Save();
             TempData["success"] = "The villa has been updated successfully";
-            return RedirectToAction("Index");
+            return RedirectToAction(nameof(Index));
 
         }
 
         public IActionResult Delete(int villaId)
         {
-            var obj = _db.Villas.FirstOrDefault(p => p.Id == villaId);
+            var obj = _villaRepo.Get(p => p.Id == villaId);
 
             if (obj is null)
             {
@@ -86,7 +87,7 @@ namespace BookingSystem.Web.Controllers
         [HttpPost]
         public IActionResult Delete(Villa villa)
         {
-            var objFromDb = _db.Villas.FirstOrDefault(p=>p.Id == villa.Id);
+            var objFromDb = _villaRepo.Get(p=>p.Id == villa.Id);
 
             if (objFromDb is null)
             {
@@ -94,10 +95,10 @@ namespace BookingSystem.Web.Controllers
                 return RedirectToAction("Error", "Home");
             }
 
-            _db.Villas.Remove (objFromDb);
-            _db.SaveChanges();
+            _villaRepo.Remove (objFromDb);
+            _villaRepo.Save();
             TempData["success"] = "The villa has been deleted successfully";
-            return RedirectToAction("Index");
+            return RedirectToAction(nameof(Index));
         }
 
 

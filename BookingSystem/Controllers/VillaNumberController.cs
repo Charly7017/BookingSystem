@@ -56,7 +56,7 @@ namespace BookingSystem.Web.Controllers
             _db.VillaNumbers.Add(villa_number.VillaNumber);
             _db.SaveChanges();
             TempData["success"] = "The villa number has been created successfully";
-            return RedirectToAction("Index");
+            return RedirectToAction(nameof(Index));
         }
 
 
@@ -92,7 +92,7 @@ namespace BookingSystem.Web.Controllers
             _db.VillaNumbers.Update(villa_number.VillaNumber);
             _db.SaveChanges();
             TempData["success"] = "The villa number has been updated successfully";
-            return RedirectToAction("Index");
+            return RedirectToAction(nameof(Index));
 
         }
 
@@ -128,7 +128,7 @@ namespace BookingSystem.Web.Controllers
             _db.VillaNumbers.Remove(objFromDb);
             _db.SaveChanges();
             TempData["success"] = "The villa number has been deleted successfully";
-            return RedirectToAction("Index");
+            return RedirectToAction(nameof(Index));
         }
 
 
