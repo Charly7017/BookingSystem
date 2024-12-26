@@ -58,7 +58,6 @@ namespace BookingSystem.Web.Controllers
         [HttpPost]
         public IActionResult Update(Villa villa)
         {
-
             if (!ModelState.IsValid)
             {
                 TempData["success"] = "The villa could not be updated";
@@ -95,7 +94,7 @@ namespace BookingSystem.Web.Controllers
                 return RedirectToAction("Error", "Home");
             }
 
-            _villaRepo.Remove (objFromDb);
+            _villaRepo.Remove(objFromDb);
             _villaRepo.Save();
             TempData["success"] = "The villa has been deleted successfully";
             return RedirectToAction(nameof(Index));
