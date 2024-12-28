@@ -4,6 +4,7 @@ using BookingSystem.Infrastructure.Data;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
+using Microsoft.IdentityModel.Tokens;
 
 namespace BookingSystem.Web.Controllers
 {
@@ -40,15 +41,22 @@ namespace BookingSystem.Web.Controllers
             }
 
 
-
             if (villa.Image is not null)
             {
+                string fileName = Guid.NewGuid().ToString() + Path.GetExtension(villa.Image.FileName);
+                string imagePath = Path.Combine(_webHostEnvironment.WebRootPath, @"images\VillaImage");
+
+                using (var fileStream = new FileStream(Path.Combine(imagePath, fileName), FileMode.Create))
+                villa.Image.CopyTo(fileStream);
+
+                villa.ImageUrl = @"\images\VillaImage\" + fileName;
 
             }
             else
             {
                 villa.ImageUrl = "https://placehold.co/600x400";
             }
+
             _unitOfWork.Villa.Add(villa);
             _unitOfWork.Save();
             TempData["success"] = "The villa has been created successfully";
@@ -75,6 +83,31 @@ namespace BookingSystem.Web.Controllers
             {
                 TempData["success"] = "The villa could not be updated";
                 return View(villa);
+            }
+
+            if (villa.Image is not null)
+            {
+                string fileName = Guid.NewGuid().ToString() + Path.GetExtension(villa.Image.FileName);
+                string imagePath = Path.Combine(_webHostEnvironment.WebRootPath, @"images\VillaImage");
+
+                if (!string.IsNullOrEmpty(villa.ImageUrl))
+                {
+                    var oldImagePath = Path.Combine(
+                        _webHostEnvironment.WebRootPath, villa.ImageUrl.TrimStart('\\'));
+
+                    if(System.IO.File.Exists(oldImagePath))
+                    {
+                        System.IO.File.Delete(oldImagePath);
+                    }
+
+                }
+
+
+                using (var fileStream = new FileStream(Path.Combine(imagePath, fileName), FileMode.Create))
+                    villa.Image.CopyTo(fileStream);
+
+                villa.ImageUrl = @"\images\VillaImage\" + fileName;
+
             }
 
             _unitOfWork.Villa.Update(villa);
@@ -106,6 +139,19 @@ namespace BookingSystem.Web.Controllers
                 TempData["error"] = "The villa could not be deleted";
                 return RedirectToAction("Error", "Home");
             }
+
+
+            if (!string.IsNullOrEmpty(objFromDb.ImageUrl))
+            {
+                var oldImagePath = Path.Combine(
+                       _webHostEnvironment.WebRootPath, objFromDb.ImageUrl.TrimStart('\\'));
+
+                if (System.IO.File.Exists(oldImagePath))
+                {
+                    System.IO.File.Delete(oldImagePath);
+                }
+            }
+
 
             _unitOfWork.Villa.Remove(objFromDb);
             _unitOfWork.Save();
