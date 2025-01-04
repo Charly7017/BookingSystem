@@ -33,7 +33,7 @@
             <div class="col-12 col-md-5  offset-md-1 pl-2  pr-2 pr-md-0">
                 <div class="form-group">
                     <label>Check In Date</label>
-                    <input asp-for="@Model.CheckInDate" type="date" class="form-control" />
+                    <input asp-for="CheckInDate" type="date" class="form-control" />
                 </div>
             </div>
 
@@ -82,6 +82,7 @@
                 data: objData,
                 type : "POST",
                 success: function (data) {
+                    console.log(data)
                     $("#VillasList").empty()
                     $("#VillasList").html(data)
                     $(".spinner").hide()

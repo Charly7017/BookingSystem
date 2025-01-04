@@ -19,12 +19,18 @@ namespace BookingSystem.Infrastructure.Repository
 
         public IAmenityRepository Amenity { get; private set; }
 
+        public IBookingRepository Booking { get; private set; }
+
+        public IApplicationUserRepository User { get; private set; }
+
         public UnitOfWork(ApplicationDbContext db)
         {
             _db = db;
             Villa = new VillaRepository(_db);
             VillaNumber = new VillaNumberRepository(_db);
-            Amenity = new AmenityRepository(_db);   
+            User = new ApplicationUserRepository(_db);
+            Amenity = new AmenityRepository(_db);
+            Booking = new BookingRepository(_db);   
         }
 
         public void Save()

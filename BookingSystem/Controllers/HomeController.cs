@@ -29,24 +29,12 @@ namespace BookingSystem.Controllers
         }
 
         [HttpPost]
-        public IActionResult Index(HomeVM homeVM)
+        public IActionResult GetVillasByDate(int nights,string checkInDate)
         {
-            homeVM.VillaList = _unitOfWork.Villa.GetAll(includeProperties: "VillaAmenity");
 
-            foreach (var villa in homeVM.VillaList)
-            {
-                if (villa.Id%2==0)
-                {
-                    villa.IsAvailable = false;
-                }
-            }
+            var parsedDate = DateOnly.TryParse(checkInDate, out var checkInDateParsed);
 
-            return View(homeVM);
-        }
 
-        
-        public IActionResult GetVillasByDate(int nights,DateOnly checkInDate)
-        {
             var villaList = _unitOfWork.Villa.GetAll(includeProperties: "VillaAmenity").ToList();
 
 
@@ -60,7 +48,8 @@ namespace BookingSystem.Controllers
 
             var homeVM = new HomeVM()
             {
-                CheckInDate = checkInDate,
+                CheckInDate = checkInDateParsed,
+                //CheckOutDate = checkInDate.AddDays(nights),
                 VillaList = villaList,
                 Nights = nights
             };
