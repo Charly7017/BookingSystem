@@ -20,6 +20,13 @@ namespace BookingSystem.Web.Controllers
         }
 
         [Authorize]
+        public IActionResult Index()
+        {
+            return View();
+        }
+
+
+        [Authorize]
         public IActionResult FinalizeBooking(int villaId,string checkInDate
                     , int nights)
         {
@@ -126,11 +133,51 @@ namespace BookingSystem.Web.Controllers
                     _unitOfWork.Save();
                 }
             }
-
-
             return View(bookingId);
+        }
+
+        [Authorize]
+        public IActionResult BookingDetails(int bookkingId)
+        {
+            Booking bookingFromDb = _unitOfWork.Booking.Get(p=>p.Id == bookkingId,includeProperties:"User,Villa");
+
+            return View(bookingFromDb);
 
         }
+
+
+
+
+        #region API CALLS
+        [HttpGet]
+        [Authorize]
+        public IActionResult GetAll(string status)
+        {
+            IEnumerable<Booking> objBookings;
+
+            if (User.IsInRole(SD.Role_Admin))
+            {
+                objBookings = _unitOfWork.Booking.GetAll(includeProperties: "User,Villa");
+            }
+            else
+            {
+                var claimsIdentity = (ClaimsIdentity)User.Identity;
+                var userId = claimsIdentity.FindFirst(ClaimTypes.NameIdentifier).Value;
+
+                objBookings = _unitOfWork.Booking
+                    .GetAll(p=>p.UserId == userId,includeProperties:"User,Villa");
+
+            }
+
+            if (!string.IsNullOrEmpty(status))
+            {
+                objBookings = objBookings.Where(p=>p.Status.ToLower().Equals(status.ToLower()));
+            }
+
+
+            return Json(new { data = objBookings });
+        }   
+        #endregion
 
 
 
