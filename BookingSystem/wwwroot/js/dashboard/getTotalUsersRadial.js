@@ -10,7 +10,6 @@ function loadTotalUserRadialChart() {
         type: 'GET',
         dataType: 'json',
         success: function (data) {
-            console.log(data)
             document.querySelector("#spanTotalUserCount").innerHTML = data.totalCount;
 
             var sectionCurrentCount = document.createElement("span");
