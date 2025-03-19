@@ -1,4 +1,5 @@
 ﻿using BookingSystem.Domain.Entities;
+using BookingSystem.Web.ViewModels;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -87,7 +88,26 @@ namespace BookingSystem.Application.Common.Utility
             return finalAvailableRoomForAllNights;
         }
 
+        public static RadialBarChartDto GetRadialChartDataModel(int totalCount, double currentMonthCount,
+         double prevMonthCount)
+        {
+            RadialBarChartDto radialBarCharVM = new();
 
+            int increaseDecreaseRatio = 100;
+
+            if (prevMonthCount != 0)
+            {
+                increaseDecreaseRatio = Convert.ToInt32((currentMonthCount - prevMonthCount)
+                    / prevMonthCount * 100);
+            }
+
+            radialBarCharVM.TotalCount = totalCount;
+            radialBarCharVM.CountInCurrentMonth = Convert.ToInt32(currentMonthCount);
+            radialBarCharVM.HasRatioIncreased = currentMonthCount > prevMonthCount;
+            radialBarCharVM.Series = new int[] { increaseDecreaseRatio };
+
+            return radialBarCharVM;
+        }
 
     }
 }

@@ -1,4 +1,6 @@
 using BookingSystem.Application.Common.Interfaces;
+using BookingSystem.Application.Services.Implementation;
+using BookingSystem.Application.Services.Interface;
 using BookingSystem.Domain.Entities;
 using BookingSystem.Infrastructure.Data;
 using BookingSystem.Infrastructure.Repository;
@@ -34,6 +36,9 @@ builder.Services.Configure<IdentityOptions>(options =>
 
 
 builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
+builder.Services.AddScoped<IDashboardService, DashboardService>();
+
+builder.Services.AddScoped<IDbInitializer, DbInitializer>();
 
 var app = builder.Build();
 
@@ -55,6 +60,8 @@ app.UseHttpsRedirection();
 app.UseStaticFiles();
 
 app.UseRouting();
+SeedDatabase();
+
 
 app.UseAuthorization();
 
@@ -63,3 +70,13 @@ app.MapControllerRoute(
     pattern: "{controller=Home}/{action=Index}/{id?}");
 
 app.Run();
+
+
+void SeedDatabase()
+{
+    using (var scope = app.Services.CreateScope())
+    {
+        var dbInitializer = scope.ServiceProvider.GetRequiredService<IDbInitializer>();
+        dbInitializer.Initialize();
+    }
+}
