@@ -1,5 +1,6 @@
 using BookingSystem.Application.Common.Interfaces;
 using BookingSystem.Application.Common.Utility;
+using BookingSystem.Application.Services.Interface;
 using BookingSystem.Models;
 using BookingSystem.Web.ViewModels;
 using Microsoft.AspNetCore.Hosting;
@@ -13,13 +14,13 @@ namespace BookingSystem.Controllers
 {
     public class HomeController : Controller
     {
-        private readonly IUnitOfWork _unitOfWork;
+        private IVillaService _villaService;
         private readonly IWebHostEnvironment _webHostEnvironment;
 
-        public HomeController(IUnitOfWork unitOfWork, IWebHostEnvironment webHostEnvironment)
+        public HomeController(IUnitOfWork unitOfWork, IWebHostEnvironment webHostEnvironment, IVillaService villaService)
         {
-            _unitOfWork = unitOfWork;
             _webHostEnvironment = webHostEnvironment;
+            _villaService = villaService;
         }
 
 
@@ -28,7 +29,7 @@ namespace BookingSystem.Controllers
         {
             var homeVM = new HomeVM()
             {
-                VillaList = _unitOfWork.Villa.GetAll(includeProperties: "VillaAmenity"),
+                VillaList = _villaService.GetAllVillas(),
                 Nights = 1,
                 CheckInDate = DateOnly.FromDateTime(DateTime.Now),
             };
@@ -38,29 +39,13 @@ namespace BookingSystem.Controllers
         [HttpPost]
         public IActionResult GetVillasByDate(int nights, string checkInDate)
         {
-
             var parsedDate = DateOnly.TryParse(checkInDate, out var checkInDateParsed);
-            
-
-            var villaList = _unitOfWork.Villa.GetAll(includeProperties: "VillaAmenity").ToList();
-
-            var villaNumbersList = _unitOfWork.VillaNumber.GetAll().ToList();
-            var bookedVillas = _unitOfWork.Booking.GetAll(p=>p.Status == SD.StatusApproved
-            || p.Status == SD.StatusCheckedIn).ToList();
-
-
-            foreach (var villa in villaList)
-            {
-                int roomAvaibale = SD.VillaRoomsAvailable_Count
-                    (villa.Id,villaNumbersList, DateOnly.Parse(checkInDate),nights,bookedVillas);
-                villa.IsAvailable = roomAvaibale > 0 ? true: false;
-            }
-
+       
             var homeVM = new HomeVM()
             {
                 CheckInDate = checkInDateParsed,
                 //CheckOutDate = checkInDate.AddDays(nights),
-                VillaList = villaList,
+                VillaList = _villaService.GetVillasAvailabilityByDate(nights, DateOnly.Parse(checkInDate)),
                 Nights = nights
             };
 
@@ -71,7 +56,7 @@ namespace BookingSystem.Controllers
         [HttpPost]
         public IActionResult GeneratePPTExport(int id)
         {
-            var villa = _unitOfWork.Villa.GetAll(includeProperties: "VillaAmenity").FirstOrDefault(p=>p.Id == id);
+            var villa = _villaService.GetVillaById(id);
             if (villa is null)
             {
                 return RedirectToAction(nameof(Error));

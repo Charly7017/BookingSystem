@@ -10,7 +10,5 @@ namespace BookingSystem.Application.Common.Interfaces
     public interface IBookingRepository : IRepository<Booking>
     {
         void Update(Booking entity);
-        void UpdateStatus(int bookingId, string bookingStatus,int villaNumber);
-        void UpdateStripePaymentId(int id, string sessionId, string paymentIntentId);
     }
 }

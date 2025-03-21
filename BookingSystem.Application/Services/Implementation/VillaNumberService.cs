@@ -48,7 +48,6 @@ namespace BookingSystem.Application.Services.Implementation
             }
             catch (Exception)
             {
-
                 return false;
             }
         }
